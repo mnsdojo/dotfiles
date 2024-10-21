@@ -54,6 +54,7 @@ keys = [
     Key([], "XF86MonBrightnessUp", lazy.spawn("brightnessctl s 10%+"), desc='brightness UP'),
     Key([], "XF86MonBrightnessDown", lazy.spawn("brightnessctl s 10%-"), desc='brightness Down'),
     Key([mod], "s", lazy.spawn("flameshot gui"), desc='Screenshot'),
+    Key([mod], "s", lazy.spawn("code"), desc='Vscode'),
     
     # Window movement
     Key([mod, "shift"], "h", lazy.layout.shuffle_left(), desc="Move window to the left"),
