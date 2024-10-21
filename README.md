@@ -1,1 +1,3 @@
 # dotfiles
+
+![Screenshot](./ss.png)
