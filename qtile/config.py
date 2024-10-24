@@ -5,7 +5,7 @@ from libqtile.config import Click, Drag, Group, Key, Match, Screen
 from libqtile import hook
 from libqtile.lazy import lazy
 
-# Nord color scheme
+# Enhanced Nord color scheme with additional colors for gradients
 colors = {
     "polar-night": {
         "darkest": "#2E3440",
@@ -36,6 +36,7 @@ colors = {
 mod = "mod4"
 terminal = "kitty"
 
+# Key bindings
 keys = [
     # Window focus movement
     Key([mod], "h", lazy.layout.left(), desc="Move focus to left"),
@@ -44,25 +45,23 @@ keys = [
     Key([mod], "k", lazy.layout.up(), desc="Move focus up"),
     Key([mod], "space", lazy.layout.next(), desc="Move window focus"),
 
-    # Custom 
+    # Custom keybindings for media and brightness control
     Key([], "XF86AudioRaiseVolume", lazy.spawn("pactl set-sink-volume 0 +5%"), desc='Volume Up'),
-    Key([], "XF86AudioLowerVolume", lazy.spawn("pactl set-sink-volume 0 -5%"), desc='volume down'),
+    Key([], "XF86AudioLowerVolume", lazy.spawn("pactl set-sink-volume 0 -5%"), desc='Volume Down'),
     Key([], "XF86AudioMute", lazy.spawn("pulsemixer --toggle-mute"), desc='Volume Mute'),
-    Key([], "XF86AudioPlay", lazy.spawn("playerctl play-pause"), desc='playerctl'),
-    Key([], "XF86AudioPrev", lazy.spawn("playerctl previous"), desc='playerctl'),
-    Key([], "XF86AudioNext", lazy.spawn("playerctl next"), desc='playerctl'),
-    Key([], "XF86MonBrightnessUp", lazy.spawn("brightnessctl s 10%+"), desc='brightness UP'),
-    Key([], "XF86MonBrightnessDown", lazy.spawn("brightnessctl s 10%-"), desc='brightness Down'),
+    Key([], "XF86AudioPlay", lazy.spawn("playerctl play-pause"), desc='Play/Pause'),
+    Key([], "XF86AudioPrev", lazy.spawn("playerctl previous"), desc='Previous Track'),
+    Key([], "XF86AudioNext", lazy.spawn("playerctl next"), desc='Next Track'),
+    Key([], "XF86MonBrightnessUp", lazy.spawn("brightnessctl s 10%+"), desc='Brightness Up'),
+    Key([], "XF86MonBrightnessDown", lazy.spawn("brightnessctl s 10%-"), desc='Brightness Down'),
     Key([mod], "s", lazy.spawn("flameshot gui"), desc='Screenshot'),
-    Key([mod], "s", lazy.spawn("code"), desc='Vscode'),
-    
-    # Window movement
+    Key([mod], "v", lazy.spawn("code"), desc='Launch VSCode'),
+
+    # Window movement and resizing
     Key([mod, "shift"], "h", lazy.layout.shuffle_left(), desc="Move window to the left"),
     Key([mod, "shift"], "l", lazy.layout.shuffle_right(), desc="Move window to the right"),
     Key([mod, "shift"], "j", lazy.layout.shuffle_down(), desc="Move window down"),
     Key([mod, "shift"], "k", lazy.layout.shuffle_up(), desc="Move window up"),
-    
-    # Window resizing
     Key([mod, "control"], "h", lazy.layout.grow_left(), desc="Grow window to the left"),
     Key([mod, "control"], "l", lazy.layout.grow_right(), desc="Grow window to the right"),
     Key([mod, "control"], "j", lazy.layout.grow_down(), desc="Grow window down"),
@@ -83,8 +82,18 @@ keys = [
     Key([mod], "d", lazy.spawn("rofi -show drun"), desc="Launch Rofi"),
 ]
 
-# Group definitions for workspaces (1-9)
-groups = [Group(i) for i in "123456789"]
+# Group definitions with icons
+groups = [
+    Group("1", label="一"),
+    Group("2", label="二"),
+    Group("3", label="三"),
+    Group("4", label="四"),
+    Group("5", label="五"),
+    Group("6", label="六"),
+    Group("7", label="七"),
+    Group("8", label="八"),
+    Group("9", label="九"),
+]
 
 for i in groups:
     keys.extend([
@@ -95,10 +104,9 @@ for i in groups:
 # Layout theming
 layout_theme = {
     "border_width": 2,
-    "margin": 9,
+    "margin": 8,
     "border_focus": colors["frost"]["blue"],
     "border_normal": colors["polar-night"]["light"],
-    "grow_amount": 2,
     "border_on_single": True,
 }
 
@@ -106,155 +114,195 @@ layout_theme = {
 layouts = [
     layout.Columns(**layout_theme),
     layout.MonadTall(**layout_theme),
+    layout.MonadWide(**layout_theme),
     layout.Max(),
 ]
+
+# Function to create a gradient effect
+def create_separator():
+    return widget.Sep(
+        linewidth=0,
+        padding=6,
+        size_percent=60,
+    )
+
+# Powerline arrow functions
+def create_left_arrow(bg_color, fg_color):
+    return widget.TextBox(
+        text="◀",  # Left-pointing triangle
+        padding=0,
+        fontsize=20,
+        background=bg_color,
+        foreground=fg_color,
+    )
+
+def create_right_arrow(bg_color, fg_color):
+    return widget.TextBox(
+        text="▶",  # Right-pointing triangle
+        padding=0,
+        fontsize=20,
+        background=bg_color,
+        foreground=fg_color,
+    )
 
 # Widget defaults
 widget_defaults = dict(
     font="JetBrainsMono Nerd Font",
     fontsize=12,
-    padding=3,
+    padding=5,
     background=colors["polar-night"]["darkest"],
 )
 extension_defaults = widget_defaults.copy()
 
-# Screen setup with bar and widgets
+# Screen setup with modernized bar and widgets
 screens = [
     Screen(
         top=bar.Bar(
             [
+                # Workspace groups with enhanced styling
                 widget.GroupBox(
                     active=colors["snow-storm"]["light"],
                     inactive=colors["polar-night"]["light"],
                     highlight_method="line",
                     highlight_color=[colors["polar-night"]["darkest"]],
                     this_current_screen_border=colors["frost"]["blue"],
-                    padding=5,
-                    margin_x=0,
-                    margin_y=3,
+                    other_current_screen_border=colors["frost"]["ocean"],
+                    other_screen_border=colors["frost"]["cyan"],
+                    padding=6,
                     borderwidth=3,
                     fontsize=14,
+                    rounded=True,
+                    margin_y=4,
+                    margin_x=4,
+                    spacing=4,
+                    disable_drag=True,
                 ),
-                widget.Sep(
-                    linewidth=0,
-                    padding=6,
-                ),
+                create_separator(),
+                
+                # Window name with background
                 widget.WindowName(
                     format="{name}",
                     max_chars=50,
                     foreground=colors["frost"]["cyan"],
+                    background=colors["polar-night"]["darker"],
+                    padding=10,
+                    fontsize=14,
                 ),
-                widget.Sep(
-                    linewidth=0,
-                    padding=6,
-                ),
+                
+                create_right_arrow(colors["polar-night"]["darker"], colors["polar-night"]["dark"]),
+                
+                # System information section
                 widget.CPU(
-                    format=' CPU {load_percent}%',
+                    format=' {load_percent}%',
                     foreground=colors["aurora"]["yellow"],
+                    background=colors["polar-night"]["dark"],
+                    padding=10,
                 ),
-                widget.Sep(
-                    linewidth=0,
-                    padding=6,
-                ),
+                
+                create_right_arrow(colors["polar-night"]["dark"], colors["polar-night"]["darker"]),
+                
                 widget.Memory(
-                    format=' {MemUsed: .0f}{mm}/{MemTotal: .0f}{mm}',
+                    format='󰍛 {MemUsed:.0f}{mm}/{MemTotal:.0f}{mm}',
                     foreground=colors["aurora"]["green"],
+                    background=colors["polar-night"]["darker"],
+                    padding=10,
                 ),
-                widget.Sep(
-                    linewidth=0,
-                    padding=6,
-                ),
+                
+                create_right_arrow(colors["polar-night"]["darker"], colors["polar-night"]["dark"]),
+                
                 widget.Net(
                     interface="enp4s0",
-                    format=' {down} ↓↑ {up}',
+                    format='󰈀 {down} ↓↑ {up}',
                     foreground=colors["frost"]["ocean"],
+                    background=colors["polar-night"]["dark"],
+                    padding=10,
                 ),
-                widget.Sep(
-                    linewidth=0,
-                    padding=6,
-                ),
+                
+                create_right_arrow(colors["polar-night"]["dark"], colors["polar-night"]["darker"]),
+                
+                # Volume widget with modern icon
                 widget.Volume(
-                    fmt=' {}',
+                    fmt='󰕾 {}',
                     foreground=colors["aurora"]["purple"],
+                    background=colors["polar-night"]["darker"],
+                    padding=10,
                 ),
-                widget.Sep(
-                    linewidth=0,
-                    padding=6,
-                ),
+                
+                create_right_arrow(colors["polar-night"]["darker"], colors["polar-night"]["dark"]),
+                
+                # Battery widget with enhanced formatting
                 widget.Battery(
-                    format=' {char} {percent:2.0%} {hour:d}:{min:02d}',
+                    format='🔋 {percent:2.0%} {hour:d}:{min:02d}',
                     charge_char='⚡',
                     discharge_char='',
-                    full_char='',      # Icon for full battery
-                    empty_char='',
-                    unknown_char='',
+                    full_char='🔋',
+                    empty_char='🔋',
+                    unknown_char='❓',
                     low_percentage=0.2,
                     low_foreground=colors["aurora"]["red"],
                     foreground=colors["frost"]["cyan"],
-                    show_short_text=False,
-                    notify_below=20,
+                    background=colors["polar-night"]["darker"],
+                    padding=10,
+                    update_interval=10,
                 ),
+                
+                create_right_arrow(colors["polar-night"]["dark"], colors["polar-night"]["darker"]),
+                
+                # Date and time widget with modern design
                 widget.Clock(
-                    format=' %Y-%m-%d %a %I:%M %p',
-                    foreground=colors["frost"]["mint"],
+                    format='📅 %Y-%m-%d %H:%M',
+                    foreground=colors["snow-storm"]["light"],
+                    background=colors["polar-night"]["darker"],
+                    padding=10,
                 ),
-                widget.Sep(
-                    linewidth=0,
-                    padding=6,
-                ),
+                
+                # Systray for application icons
                 widget.Systray(
-                    padding=6,
+                    background=colors["polar-night"]["dark"],
+                    padding=10,
                 ),
-                widget.Sep(
-                    linewidth=0,
-                    padding=6,
-                ),
-                widget.QuickExit(
-                    default_text=' ',
+                
+                create_right_arrow(colors["polar-night"]["darker"], colors["polar-night"]["dark"]),
+                
+                # Logout button with icon
+
+                 widget.QuickExit(
+                    default_text='⏻',
                     countdown_format='{}',
                     foreground=colors["aurora"]["red"],
-                    fontsize=14,
+                    background=colors["polar-night"]["dark"],
+                    padding=10,
                 ),
+                
+                create_separator(),
             ],
-            28,  # Bar height
+            size=30,
             background=colors["polar-night"]["darkest"],
-            margin=[4, 6, 0, 6],  # [top, right, bottom, left]
-            opacity=0.95,
         ),
     ),
 ]
 
-# Mouse bindings
-mouse = [
-    Drag([mod], "Button1", lazy.window.set_position_floating(), start=lazy.window.get_position()),
-    Drag([mod], "Button3", lazy.window.set_size_floating(), start=lazy.window.get_size()),
-    Click([mod], "Button2", lazy.window.bring_to_front()),
-]
-
-# Floating layout rules
+# Floating layout configurations
 floating_layout = layout.Floating(
     float_rules=[
         *layout.Floating.default_float_rules,
-        Match(wm_class="confirmreset"),
-        Match(wm_class="makebranch"),
-        Match(wm_class="maketag"),
-        Match(wm_class="ssh-askpass"),
-        Match(title="branchdialog"),
-        Match(title="pinentry"),
-    ],
+        Match(wm_class="confirm"),  # Confirm dialogs
+        Match(wm_class="dialog"),  # Dialogs
+        Match(wm_class="file_progress"),  # File progress dialogs
+        Match(wm_class="notification"),  # Notifications
+        Match(wm_class="pinentry"),  # Pin entry dialogs
+        Match(title="branchdialog"),  # Git branch dialog
+        Match(title="Open File"),  # Open file dialog
+        Match(title="Save File"),  # Save file dialog
+    ]
 )
 
-# Other settings
-auto_fullscreen = True
-focus_on_window_activation = "smart"
-reconfigure_screens = True
-auto_minimize = True
-wl_input_rules = None
-wl_xcursor_theme = None
-wl_xcursor_size = 24
-wmname = "LG3D"
-
+# Startup hook to launch applications
 @hook.subscribe.startup_once
-def autostart():
-    home = os.path.expanduser('~/.config/qtile/autostart.sh')
-    subprocess.Popen([home])
+def startup():
+    subprocess.call([os.path.expanduser("~/.config/qtile/scripts/autostart.sh")])
+
+# Qtile configuration to include floating layout and other settings
+auto_fullscreen = True
+wmname = "Qtile"
+
